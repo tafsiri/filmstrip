@@ -2,6 +2,7 @@ import math
 import cv2
 import cv
 import argparse
+import numpy as np
 
 def getInfo(sourcePath):
     cap = cv2.VideoCapture(sourcePath)
@@ -19,14 +20,14 @@ def getInfo(sourcePath):
 # Extracts one frame every second
 #
 def extractFrames(sourcePath, destPath, verbose=False):
-    info = getInfo(sourcePath)    
+    info = getInfo(sourcePath)
 
     cap = cv2.VideoCapture(sourcePath)
     fourcc = cv2.cv.CV_FOURCC('X','V','I','D')
-    out = cv2.VideoWriter(destPath, 
-        fourcc, 
+    out = cv2.VideoWriter(destPath,
+        fourcc,
         info["fps"],
-        (info["width"], info["height"]))    
+        (info["width"], info["height"]))
 
     ret = True
     while(cap.isOpened() and ret):
@@ -40,16 +41,65 @@ def extractFrames(sourcePath, destPath, verbose=False):
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
-            
+
     cap.release()
     out.release()
     cv2.destroyAllWindows()
+
+
+#
+# Extracts a region of interest defined by a rect
+# from a video
+#
+def extractROI(sourcePath, destPath, points, verbose=False):
+    info = getInfo(sourcePath)
+    # x, y, width, height = cv2.boundingRect(points)
+
+    # print(x,y,width,height)/
+    x = points[0][0]
+    y = points[0][1]
+
+    width = points[1][0] - points[0][0]
+    height = points[1][1] - points[0][1]
+
+    cap = cv2.VideoCapture(sourcePath)
+
+    fourcc = cv2.cv.CV_FOURCC('X','V','I','D')
+    out = cv2.VideoWriter(destPath,
+        fourcc,
+        info["fps"],
+        (width, height))
+
+    ret = True
+    while(cap.isOpened() and ret):
+        ret, frame = cap.read()
+
+        roi = frame[y:y+height, x:x+width]
+
+        out.write(roi)
+
+        if verbose:
+            cv2.imshow('frame', roi)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+    cap.release()
+    out.release()
+    cv2.destroyAllWindows()
+
+
+# Groups a list in n sized tuples
+def group(lst, n):
+    return zip(*[lst[i::n] for i in range(n)])
 
 
 parser = argparse.ArgumentParser(description='Extract one frame from every second of video')
 
 parser.add_argument('--source', help='source file', required=True)
 parser.add_argument('--dest', help='source file', required=True)
+parser.add_argument('--command', help='command to run', required=True)
+parser.add_argument('--rect', help='x1,y2,x2,y2', required=True)
 parser.add_argument('--verbose', action='store_true')
 parser.set_defaults(verbose=False)
 
@@ -59,4 +109,9 @@ if args.verbose:
     info = getInfo(args.source)
     print("Source Info: ", info)
 
-extractFrames(args.source, args.dest, args.verbose)
+if args.command == "shrink":
+    extractFrames(args.source, args.dest, args.verbose)
+elif args.command == "roi":
+    points = [int(x) for x in args.rect.split(",")]
+    points = group(points, 2)
+    extractROI(args.source, args.dest, points, args.verbose)
