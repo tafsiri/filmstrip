@@ -177,7 +177,8 @@ def extractKeyframes(sourcePath, destPath, data, name, verbose=False):
 
 
         if frame != None:
-            fname = os.path.join(destDir, name + "-" + str(index+1) + "---" + str(writeCount) + ".png")
+            # + "---" + str(writeCount)
+            fname = os.path.join(destDir, name + "-" + str(index+1) + ".png")
             cv2.imwrite(fname, frame)
             writeCount += 1
 
