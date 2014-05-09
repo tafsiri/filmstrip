@@ -1,0 +1,39 @@
+body {
+  padding: 0;
+  margin: 0;
+  /*box-sizing:border-box;*/
+  line-height: 15px;
+}
+
+a {
+  color: #00B7FF;
+}
+
+
+.tile{
+	display:inline-block;
+	line-height: 0px;
+}
+
+.speaker{
+	display:inline;
+	white-space: pre-wrap;
+	/*line-height: -20px;*/
+}
+
+.speaker_name{
+	/*box-sizing:border-box;*/
+	font-size:83pt;
+	font-family: "HelveticaNeue-CondensedBlack", "HelveticaNeue-condensed-bold", "Helvetica Neue Condensed Bold", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	text-transform: uppercase;
+	/*color:#ffffff;*/
+	color: #FF4B5C;
+
+	/*background-color: #FF4B5C;*/
+	padding:0;
+	margin:0;
+	overflow: hidden;
+	/*font-variant: small-caps;*/
+	/*border: 1px solid #ff4b5c;*/
+	/*text-decoration:underline*/
+}
