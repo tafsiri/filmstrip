@@ -73,6 +73,8 @@ def extractROI(sourcePath, destPath, points, verbose=False):
     ret = True
     while(cap.isOpened() and ret):
         ret, frame = cap.read()
+        if frame == None:
+            break
 
         roi = frame[y:y+height, x:x+width]
 
@@ -99,7 +101,7 @@ parser = argparse.ArgumentParser(description='Extract one frame from every secon
 parser.add_argument('--source', help='source file', required=True)
 parser.add_argument('--dest', help='source file', required=True)
 parser.add_argument('--command', help='command to run', required=True)
-parser.add_argument('--rect', help='x1,y2,x2,y2', required=True)
+parser.add_argument('--rect', help='x1,y2,x2,y2', required=False)
 parser.add_argument('--verbose', action='store_true')
 parser.set_defaults(verbose=False)
 

@@ -75,7 +75,7 @@ def extract_cols(image, numCols):
 #
 # Extracts one frame every second
 #
-def detectKeyframes(sourcePath, verbose=False):
+def detectKeyframes(sourcePath, verbose=False, after_frame=0):
     info = getInfo(sourcePath)
 
     cap = cv2.VideoCapture(sourcePath)
@@ -94,6 +94,9 @@ def detectKeyframes(sourcePath, verbose=False):
         frame_number = cap.get(cv.CV_CAP_PROP_POS_FRAMES) - 1
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        if frame_number < after_frame:
+            lastFrame = gray
+            continue
 
 
         if lastFrame != None: # and frame_number - 5 < info["framecount"]:
@@ -150,19 +153,43 @@ def detectKeyframes(sourcePath, verbose=False):
 
     return data
 
+
+
+#
+# Take an image and write it out at various sizes
+#
+def writeImagePyramid(destPath, name, seqNumber, image):
+    fullPath = os.path.join(destPath, "full", name + "-" + str(seqNumber) + ".png")
+    halfPath = os.path.join(destPath, "half", name + "-" + str(seqNumber) + ".png")
+    quarterPath = os.path.join(destPath, "quarter", name + "-" + str(seqNumber) + ".png")
+    eigthPath = os.path.join(destPath, "eigth", name + "-" + str(seqNumber) + ".png")
+    sixteenthPath = os.path.join(destPath, "sixteenth", name + "-" + str(seqNumber) + ".png")
+
+    hImage = scale(image, 0.5, 0.5)
+    qImage = scale(image, 0.25, 0.25)
+    eImage = scale(image, 0.125, 0.125)
+    sImage = scale(image, 0.0625, 0.0625)
+
+    # cv2.imwrite(fullPath, image)
+    # cv2.imwrite(halfPath, hImage)
+    cv2.imwrite(quarterPath, qImage)
+    cv2.imwrite(eigthPath, eImage)
+    cv2.imwrite(sixteenthPath, sImage)
+
+
+
 #
 # Extracts one frame every second
 #
 def extractKeyframes(sourcePath, destPath, data, name, verbose=False):
     info = getInfo(sourcePath)
-    destDir = os.path.join(destPath, "images", "full")
-    destDirSmall = os.path.join(destPath, "images", "100x100")
+    destDir = os.path.join(destPath, "images")
 
     diff_threshold = (data["stats"]["sd"] * 2) + data["stats"]["mean"]
-    print("diff_threshold", diff_threshold)
+    # print("diff_threshold", diff_threshold)
 
     cap = cv2.VideoCapture(sourcePath)
-    writeCount = 0
+    # writeCount = 0
     for index, fi in enumerate(data["frame_info"]):
         if fi["diff_count"] < diff_threshold:
             continue
@@ -178,9 +205,10 @@ def extractKeyframes(sourcePath, destPath, data, name, verbose=False):
 
         if frame != None:
             # + "---" + str(writeCount)
-            fname = os.path.join(destDir, name + "-" + str(index+1) + ".png")
-            cv2.imwrite(fname, frame)
-            writeCount += 1
+            # fname = os.path.join(destDir, name + "-" + str(index+1) + ".png")
+            # cv2.imwrite(fname, frame)
+            # writeCount += 1
+            writeImagePyramid(destDir, name, fi["frame_number"], frame)
 
             if verbose:
                 cv2.imshow('extract', frame)
@@ -194,9 +222,14 @@ def extractKeyframes(sourcePath, destPath, data, name, verbose=False):
 
 def make_output_dirs(path):
     try:
+        #todo this doesn't quite work like mkdirp. it will fail
+        #fi any folder along the path exists. fix
         os.makedirs(os.path.join(path, "metadata"))
         os.makedirs(os.path.join(path, "images", "full"))
-        os.makedirs(os.path.join(path, "images", "100x100"))
+        os.makedirs(os.path.join(path, "images", "half"))
+        os.makedirs(os.path.join(path, "images", "quarter"))
+        os.makedirs(os.path.join(path, "images", "eigth"))
+        os.makedirs(os.path.join(path, "images", "sixteenth"))
     except OSError as exc: # Python >2.5
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
@@ -208,6 +241,7 @@ parser = argparse.ArgumentParser(description='Extract one frame from every secon
 parser.add_argument('-s','--source', help='source file', required=True)
 parser.add_argument('-d', '--dest', help='dest folder', required=True)
 parser.add_argument('-n', '--name', help='image sequence name', required=True)
+parser.add_argument('-a','--after_frame', help='after frame', default=0)
 parser.add_argument('-v', '--verbose', action='store_true')
 parser.set_defaults(verbose=False)
 
@@ -219,7 +253,7 @@ if args.verbose:
 
 make_output_dirs(args.dest)
 
-data = detectKeyframes(args.source, args.verbose)
+data = detectKeyframes(args.source, args.verbose, int(args.after_frame))
 data = extractKeyframes(args.source, args.dest, data, args.name, args.verbose)
 keyframeInfo = [frame_info for frame_info in data["frame_info"] if "dominant_cols" in frame_info]
 
