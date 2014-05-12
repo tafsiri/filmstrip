@@ -1,32 +1,106 @@
+/* General */
+
 body {
-  /*padding: 0;*/
-  /*margin: 0;*/
-  /*box-sizing:border-box;*/
-  /*line-height: 15px;*/
+	/*background-color: #ccc;*/
 }
 
-a {
-  color: #00B7FF;
+/* Header */
+
+header {
+  border-top: 2px solid #ff4b5c;
+  margin-bottom: 35px;
+}
+.pure-menu.pure-menu-open.pure-menu-horizontal{
+	/*text-align: right;*/
+}
+
+.pure-menu.pure-menu-open.pure-menu-horizontal .title{
+	font-family: 'Open Sans', sans-serif;
+	text-transform: uppercase;
+	/*font-variant: small-caps;*/
+	font-size:10pt;
+	letter-spacing: 0.1em;
+	font-weight: 300;
+	color:#aaa;
+	margin-left:20px;
+	margin-top:8px;
+}
+
+.pure-menu.pure-menu-open.pure-menu-horizontal ul.right{
+	float: right;
+}
+
+.pure-menu.pure-menu-open.pure-menu-horizontal a{
+	color: #ff4b5c;
+}
+
+.pure-menu.pure-menu-open.pure-menu-horizontal a i{
+	font-weight: normal;
+	font-style: normal;
+	font-size:14px;
+}
+
+
+
+
+/* Footer */
+
+
+/* Main Tile Area */
+
+.tile-area{
+	display:inline-block;
+	margin:0px;
+}
+
+.speaker-info{
+	display:inline-block;
+	margin:0px;
 }
 
 
 .tile{
 	display:inline-block;
+	margin:0px;
 }
 
 .speaker{
-	/*display:inline-block;*/
-	/*white-space: pre-wrap;*/
+	/*background-color: #ddd;*/
+	margin-left:20px;
+	margin-bottom: 5px;
 }
 
-.speaker_name{
-	font-size:24pt;
-	font-family: "HelveticaNeue-UltraLight", Helvetica, Arial, "Lucida Grande", sans-serif;
+h2.speaker_name{
+	display:inline-block;
+	margin: 0px 10px 10px 0px;
+	padding: 0px 10px 0px 10px;
+	position: relative;
+	color:#777;
+
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 600;
+	min-width: 200px;
+	max-width: 200px;
+	line-height: 1.2em;
+	font-size: 10pt;
 	text-transform: uppercase;
-	/*padding:5px;*/
-	margin:10px;
-	overflow: hidden;
-	font-variant: small-caps;
-	/*border: 1px solid #ff4b5c;*/
-	text-decoration:underline
+	/*font-variant: small-caps;*/
 }
+
+/*h2.speaker_name::after {
+	width: 100%;
+	height:3px;
+	position: absolute;
+	content: "";
+	top: 23px;
+	left: -5px;
+	z-index: -1;
+	background: rgba(248, 53, 71, 0.2);
+}*/
+
+
+
+
+
+
+

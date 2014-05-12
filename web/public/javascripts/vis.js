@@ -1,15 +1,31 @@
 $(document).ready(function(){
-  console.log("hi");
 
   function getImagePath(name, frameNumber){
-    return "/data/" + name + "/images/full/" + name + "-" + frameNumber + ".png";
+    return "/data/" + name + "/images/eigth/" + name + "-" + frameNumber + ".png";
   }
 
   function getFullname(name){
     names = {
-      "amanda": "amanda cox",
-      "jim": "jim vallandingham"
+      "eric_fisher": "Eric Fisher",
+      "sam_selikoff": "Sam Selikoff",
+      "kennedy_elliot": "Kennedy Elliot",
+      "jen": "Jen Christiansen",
+      "arvind_satyanarayan": "Arvind Satyanarayan",
+      "tom_frederik": "Tom De Smedt +<br> Frederik De Bleser",
+      "andy_kirk": "Andy Kirk",
+      "david_mimno": "David Mimno",
+      "jake_vanderplas": "Jake Vanderplas",
+      "jason_sundram": "Jason Sundram",
+      "john_resig": "John Resig",
+      "lena_groeger": "Lena Groeger",
+      "lisa_chris": "Lisa Strausfeld +<br> Christopher Cannon",
+      "marian_doerk": "Marian Dörk",
+      "mike_bostock": "Mike Bostock",
+      "ramnath_vaidyanathan": "Ramnath Vaidyanathan",
+      "robert_simmon": "Robert Simmon",
+      "mauricio_giraldo": "Mauricio Giraldo"
     };
+
     fullname = names[name];
     if(fullname){
       return fullname;
@@ -19,13 +35,44 @@ $(document).ready(function(){
   }
 
 
+  function getTalkTitle(name){
+    titles = {
+      "eric_fisher": "Mapping Billions of Dots",
+      "sam_selikoff": "Using D3 with Backbone, Angular and Ember",
+      "kennedy_elliot": "Coding for the News",
+      "jen": "Visualizing Science: Developing Information Graphics for Scientific American Magazine",
+      "arvind_satyanarayan": "Lyra: An Interactive Visualization Design Environment",
+      "tom_frederik": "Agile Data Mining and Visualization",
+      "andy_kirk": "The Design of Nothing: Null, Zero, Blank",
+      "david_mimno": "Understanding Machine Learning with D3: Visualization for Models and Algorithms",
+      "jake_vanderplas": "Python in the Browser Age: Data Exploration in the IPython Notebook",
+      "jason_sundram": "A full stack approach to data visualization: Terabytes (and beyond) at Facebook",
+      "john_resig": "Analyzing Art Data for Fun and Profit",
+      "lena_groeger": "Think Small: the Power of Wee Things",
+      "lisa_chris": "Bloomberg Visual Data - From Explanation to Exploration",
+      "marian_doerk": "From Bird's-eye Views to Street-Level Data Exploration: Taking Text For A Stroll",
+      "mike_bostock": "Mike Bostock",
+      "ramnath_vaidyanathan": "Interactive Visualizations with R",
+      "robert_simmon": "Subtleties of Color",
+      "mauricio_giraldo": "NYPL Labs Building Inspector: Extracting Data from Historic Maps",
+    };
+
+    title = titles[name];
+    if(title){
+      return title;
+    } else{
+      return name;
+    }
+  }
+
+
   var dataFile = "data/metadata.json";
 
-  var smallTileWidth = "5px";
-  var smallTileHeight = "40px";
+  var smallTileWidth = "7px";
+  var smallTileHeight = "50px";
 
-  var largeTileWidth = "120px";
-  var largeTileHeight = "90px";
+  var largeTileWidth = "150px";
+  var largeTileHeight = "120px";
 
   var dispatch = d3.dispatch("expand", "contract",
     "showImage", "hideImage", "loadImage");
@@ -43,11 +90,19 @@ $(document).ready(function(){
         .append("div")
         .attr("class", "speaker");
 
-    speaker
-      .append("span")
+    var infoArea = speaker
+        .append("div")
+        .attr("class", "speaker-info");
+
+    var tileArea = speaker
+        .append("div")
+        .attr("class", "tile-area");
+
+    infoArea
+      .append("h2")
       .attr("class", "speaker_name")
       .attr("data-expanded", "false")
-      .text(function(d,i) {
+      .html(function(d,i) {
         return getFullname(d.name);
       })
       .on("click", function(d, i){
@@ -66,7 +121,7 @@ $(document).ready(function(){
       });
 
 
-    var tiles = speaker.selectAll(".tile")
+    var tiles = tileArea.selectAll(".tile")
       .data(function(d,i) {
         var frames = d.frames;
         _.each(frames, function(f){
@@ -83,28 +138,48 @@ $(document).ready(function(){
       });
 
     //Style the tile
-    var linearGradientTemplate = _.template("linear-gradient(<%= direction %>, <%= from %>, <%= to %>)");
+    var linearGradientTemplate = _.template("linear-gradient(<%= direction %>, <%= from %> <%= stop%>%, <%= to %>)");
     tiles
       .style("width", smallTileWidth)
       .style("height", smallTileHeight)
-      .style("margin", "1px")
+      .style("margin-right", "1px")
       .style("border-width", "0px")
       .style("border-style", "solid")
       .style("background-color", function(d, i){
-        var sorted = _.sortBy(d.dominant_cols, function(datum){ return datum.count; }).reverse();
-        var c = sorted[0].col;
+        var byHsl = _.sortBy(d.dominant_cols, function(datum){
+          var rgbArr = datum.col;
+          var rgbCol = d3.rgb(rgbArr[0], rgbArr[1], rgbArr[2]);
+          var hsl = rgbCol.hsl();
+          return hsl.s;
+          // return datum.count;
+        }).reverse();
+        var c = byHsl[0].col;
         return d3.rgb(c[0], c[1], c[2]);
 
       })
       .style("background", function(d, i){
-        var sorted = _.sortBy(d.dominant_cols, function(datum){ return datum.count; }).reverse();
-        var c1 = sorted[1].col;
-        var c2 = sorted[2].col;
+        var byCount = _.sortBy(d.dominant_cols, function(datum){
+          return datum.count;
+        }).reverse();
+
+        var byHsl = _.sortBy(d.dominant_cols, function(datum){
+          var rgbArr = datum.col;
+          var rgbCol = d3.rgb(rgbArr[0], rgbArr[1], rgbArr[2]);
+          var hsl = rgbCol.hsl();
+          return hsl.s;
+          // return datum.count;
+        }).reverse();
+
+        // var c = byHsl[0].col;
+
+        var c1 = byHsl[0].col;
+        var c2 = byHsl[1].col;
 
         var gradient = linearGradientTemplate({
           direction: "to bottom",
           from: d3.rgb(c1[0], c1[1], c1[2]),
-          to: d3.rgb(c2[0], c2[1], c2[2])
+          to: d3.rgb(c2[0], c2[1], c2[2]),
+          stop: (Math.random() * 5) + 50
         });
         return gradient;
       });
