@@ -118,7 +118,6 @@ $(document).ready(function(){
 
         lastFrameNumber = speaker_data["frames"][i]["frame_number"];
         if(diff < 8 && lastFrameNumber !== 0){
-          console.log("deleting", i)
           speaker_data["frames"][i] = undefined;
         }
       }
@@ -145,10 +144,6 @@ $(document).ready(function(){
     var infoArea = speaker
         .append("td")
         .attr("class", "speaker-info");
-
-    var tileArea = speaker
-        .append("td")
-        .attr("class", "tile-area");
 
     infoArea
       .append("h2")
@@ -185,9 +180,9 @@ $(document).ready(function(){
       });
 
 
-
-
-
+    var tileArea = speaker
+        .append("td")
+        .attr("class", "tile-area");
 
     var tiles = tileArea.selectAll(".tile")
       .data(function(d,i) {
@@ -264,6 +259,12 @@ $(document).ready(function(){
       speakerTiles.transition()
         .style("width", largeTileWidth)
         .style("height", largeTileHeight);
+
+
+      //Decolor the little plus sign for expanding/contracting
+      d3.select(speakerTiles[0][0].parentNode.parentNode).selectAll("i.fa.fa-plus")
+        .transition()
+        .style("color", "#bbb");
     });
 
     //Trigger the non-expanded view of a set of tiles
@@ -272,6 +273,11 @@ $(document).ready(function(){
       speakerTiles.transition()
         .style("width", smallTileWidth)
         .style("height", smallTileHeight);
+
+      //Recolor the little plus sign for expanding/contracting
+      d3.select(speakerTiles[0][0].parentNode.parentNode).selectAll("i.fa.fa-plus")
+        .transition()
+        .style("color", "#ff4b5c");
     });
 
     //Trigger the loading of images of a set of tiles
