@@ -8,7 +8,7 @@ body {
 
 header {
   border-top: 2px solid #ff4b5c;
-  margin-bottom: 35px;
+  margin-bottom: 65px;
 }
 .pure-menu.pure-menu-open.pure-menu-horizontal{
 	/*text-align: right;*/
@@ -34,10 +34,11 @@ header {
 	color: #ff4b5c;
 }
 
-.pure-menu.pure-menu-open.pure-menu-horizontal a i{
+i{
 	font-weight: normal;
 	font-style: normal;
 	font-size:14px;
+	cursor: pointer;
 }
 
 
@@ -49,13 +50,16 @@ header {
 /* Main Tile Area */
 
 .tile-area{
-	display:inline-block;
+	/*display:inline-block;*/
 	margin:0px;
+	padding-right:10px;
 }
 
 .speaker-info{
-	display:inline-block;
-	margin:0px;
+	padding-right:20px;
+	vertical-align: top;
+	min-width: 300px;
+	max-width: 300px;
 }
 
 
@@ -64,43 +68,49 @@ header {
 	margin:0px;
 }
 
-.speaker{
-	/*background-color: #ddd;*/
-	margin-left:20px;
-	margin-bottom: 5px;
+td{
+	padding-bottom: 40px;
+}
+
+.speaker-info h2{
+	margin: 0px 10px 0px 0px;
+	padding: 0px 10px 5px 20px;
+	position: relative;
+	color:#777;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 600
+	line-height: 1.2em;
+	font-size: 9pt;
+	text-transform: uppercase;
+	cursor: pointer;
 }
 
 h2.speaker_name{
-	display:inline-block;
-	margin: 0px 10px 10px 0px;
-	padding: 0px 10px 0px 10px;
-	position: relative;
-	color:#777;
-
-	font-family: 'Open Sans', sans-serif;
-	font-weight: 600;
-	min-width: 200px;
-	max-width: 200px;
-	line-height: 1.2em;
-	font-size: 10pt;
-	text-transform: uppercase;
-	/*font-variant: small-caps;*/
+	display: inline-block;
 }
 
-/*h2.speaker_name::after {
-	width: 100%;
-	height:3px;
-	position: absolute;
-	content: "";
-	top: 23px;
-	left: -5px;
-	z-index: -1;
-	background: rgba(248, 53, 71, 0.2);
-}*/
+h2.talk_name{
+	color:#222;
+	text-transform: none;
+	font-family: 'Raleway', sans-serif;
+	font-weight: 400;
+	/*font-style: italic;*/
+	line-height: 1.2em;
+	font-size: 10pt;
+	margin-top:4px;
+	margin-bottom:4px;
+	display: inline-block;
+}
 
-
-
-
+.speaker i{
+	margin: 0px 5px 0px 8px;
+	padding:0;
+	vertical-align: top;
+	color:#ff4b5c;
+	/*float: right;*/
+	float: right;
+  /*padding-left: 10px;*/
+}
 
 
 

@@ -1,3 +1,5 @@
+eaea = 1;
+
 $(document).ready(function(){
 
   function getImagePath(name, frameNumber){
@@ -18,7 +20,7 @@ $(document).ready(function(){
       "jason_sundram": "Jason Sundram",
       "john_resig": "John Resig",
       "lena_groeger": "Lena Groeger",
-      "lisa_chris": "Lisa Strausfeld +<br> Christopher Cannon",
+      "lisa_chris": "Lisa Strausfeld + <br>Christopher Cannon",
       "marian_doerk": "Marian Dörk",
       "mike_bostock": "Mike Bostock",
       "ramnath_vaidyanathan": "Ramnath Vaidyanathan",
@@ -37,7 +39,8 @@ $(document).ready(function(){
 
   function getTalkTitle(name){
     titles = {
-      "eric_fisher": "Mapping Billions of Dots",
+      "mike_bostock": "Design is a Search Space",
+      "eric": "Mapping Billions of Dots",
       "sam_selikoff": "Using D3 with Backbone, Angular and Ember",
       "kennedy_elliot": "Coding for the News",
       "jen": "Visualizing Science: Developing Information Graphics for Scientific American Magazine",
@@ -51,7 +54,6 @@ $(document).ready(function(){
       "lena_groeger": "Think Small: the Power of Wee Things",
       "lisa_chris": "Bloomberg Visual Data - From Explanation to Exploration",
       "marian_doerk": "From Bird's-eye Views to Street-Level Data Exploration: Taking Text For A Stroll",
-      "mike_bostock": "Mike Bostock",
       "ramnath_vaidyanathan": "Interactive Visualizations with R",
       "robert_simmon": "Subtleties of Color",
       "mauricio_giraldo": "NYPL Labs Building Inspector: Extracting Data from Historic Maps",
@@ -65,21 +67,71 @@ $(document).ready(function(){
     }
   }
 
+  function getOrder(){
+    return [
+      "mike_bostock",
+      "eric",
+      "sam_selikoff",
+      "kennedy_elliot",
+      "jen",
+      "arvind_satyanarayan",
+      "tom_frederik",
+      "andy_kirk",
+      "david_mimno",
+      "john_resig",
+      "robert_simmon",
+      "lisa_chris",
+      "mauricio_giraldo",
+      "jake_vanderplas",
+      "ramnath_vaidyanathan",
+      "marian_doerk",
+      "lena_groeger",
+      "jason_sundram"
+    ];
+  }
+
+
 
   var dataFile = "data/metadata.json";
 
   var smallTileWidth = "7px";
-  var smallTileHeight = "50px";
+  var smallTileHeight = "55px";
 
-  var largeTileWidth = "150px";
-  var largeTileHeight = "120px";
+  var largeTileWidth = "140px";
+  var largeTileHeight = "100px";
 
   var dispatch = d3.dispatch("expand", "contract",
     "showImage", "hideImage", "loadImage");
 
   d3.json(dataFile, function(data){
 
-    var container = d3.select("#container");
+    //Do a bit of cleanup on the data to hide frames that are close together in
+    //time.
+    _.each(data, function(speaker_data){
+      var lastFrameNumber = 0;
+      for(var i = 1; i < speaker_data["frames"].length; i++){
+        var diff = speaker_data["frames"][i]["frame_number"] - lastFrameNumber;
+
+        // if(speaker_data["frames"][i-1]){
+        //   lastFrameNumber = speaker_data["frames"][i-1]["frame_number"];
+        // }
+
+        lastFrameNumber = speaker_data["frames"][i]["frame_number"];
+        if(diff < 8 && lastFrameNumber !== 0){
+          console.log("deleting", i)
+          speaker_data["frames"][i] = undefined;
+        }
+      }
+      speaker_data["frames"] = _.compact(speaker_data["frames"]);
+    });
+
+    var ordered = getOrder();
+    data = _.sortBy(data, function(d){
+      return ordered.indexOf(d.name);
+    });
+
+    var container = d3.select("#container")
+      .append("table");
 
     // Add divs for all the images associated with one speaker
     // and add a div as a label
@@ -87,38 +139,54 @@ $(document).ready(function(){
       .data(data);
 
     speaker.enter()
-        .append("div")
+        .append("tr")
         .attr("class", "speaker");
 
     var infoArea = speaker
-        .append("div")
+        .append("td")
         .attr("class", "speaker-info");
 
     var tileArea = speaker
-        .append("div")
+        .append("td")
         .attr("class", "tile-area");
 
     infoArea
       .append("h2")
       .attr("class", "speaker_name")
-      .attr("data-expanded", "false")
       .html(function(d,i) {
         return getFullname(d.name);
       })
       .on("click", function(d, i){
-        var node = d3.select(this);
-        var expanded = node.attr("data-expanded");
-        if(expanded === "false"){
-          dispatch.loadImage(d.name);
-          dispatch.expand(d.name);
-          dispatch.showImage(d.name);
-          node.attr("data-expanded", "true");
-        } else {
-          dispatch.hideImage(d.name);
-          dispatch.contract(d.name);
-          node.attr("data-expanded", "false");
-        }
+        toggle(d.name);
       });
+
+    infoArea
+      .append("i")
+      .attr("class", "fa fa-plus")
+      .attr("data-name", function(d){ return d.name;} )
+      .on("click", function(d, i){
+        toggle(d.name);
+      });
+
+    infoArea
+      .append("i")
+      .attr("class", "fa fa-youtube-play")
+      .attr("data-name", function(d){ return d.name;} );
+
+    infoArea
+      .append("h2")
+      .attr("class", "talk_name")
+      .attr("data-expanded", "false")
+      .html(function(d,i) {
+        return getTalkTitle(d.name);
+      })
+      .on("click", function(d, i){
+        toggle(d.name);
+      });
+
+
+
+
 
 
     var tiles = tileArea.selectAll(".tile")
@@ -259,6 +327,68 @@ $(document).ready(function(){
           d3.select(this).style("display", "none");
         });
     });
+
+
+    d3.select("#expand_all")
+      .on("click", function(){
+        expand();
+        d3.event.preventDefault();
+      });
+
+    d3.select("#contract_all")
+      .on("click", function(){
+        contract();
+        d3.event.preventDefault();
+      });
+
+
+
+    var _expanded = {};
+    function toggle(name){
+      if(_.isUndefined(name)){
+        name = getOrder();
+      } else {
+        name = [name];
+      }
+
+      _.each(name, function(n){
+        if(_expanded[name]){
+          contract(name);
+          _expanded[name] = false;
+        } else {
+          expand(name);
+          _expanded[name] = true;
+        }
+
+      });
+    }
+
+    function expand(name){
+      if(_.isUndefined(name)){
+        name = getOrder();
+      } else {
+        name = [name];
+      }
+
+      _.each(name, function(n){
+        dispatch.loadImage(n);
+        dispatch.expand(n);
+        dispatch.showImage(n);
+      });
+    }
+
+    function contract(name){
+      if(_.isUndefined(name)){
+        name = getOrder();
+      } else {
+        name = [name];
+      }
+
+      _.each(name, function(n){
+        dispatch.hideImage(n);
+        dispatch.contract(n);
+      });
+    }
 
 
   });

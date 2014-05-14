@@ -4,13 +4,15 @@ block content
 	header
 		.pure-menu.pure-menu-open.pure-menu-horizontal
 			ul.words
-				li.title Talks from OpenVisConf 2014
+				li.title OpenVisConf 2014 Talks
 					//- a(href="#") ?
 			ul.right
 				li
-					a(href="#") <i class="fa fa-plus"></i>
+					a(href="#" id="expand_all")
+						i(class="fa fa-plus")
 				li
-					a(href="#") <i class="fa fa-minus"></i>
+					a(href="#" id="contract_all")
+						i(class="fa fa-minus")
 	.pure-g
 
 		.pure-u-24-24
