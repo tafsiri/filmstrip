@@ -1,70 +1,249 @@
-eaea = 1;
+function updatePlayhead(d){
+  var message = "";
+
+  if(d == "start"){
+    message = "Click to play from start";
+  }
+  else if(d !== null){
+    var minutes = Math.floor(d.frame_number / 60);
+    if(minutes < 10){
+      minutes = "0" + minutes;
+    }
+    var seconds = d.frame_number % 60;
+    if(seconds < 10){
+      seconds = "0" + seconds;
+    }
+
+    message = "Click to play from " + minutes + ":" + seconds;
+  }
+
+  d3.select("#playhead")
+    .text(message);
+}
+
+var playHeadVisible;
+function showPlayhead(d){
+  playHeadVisible = true;
+
+  d3.select("#playhead")
+    .transition()
+    .duration(200)
+    .style("opacity", 1);
+}
+
+function hidePlayhead(timeout){
+  playHeadVisible = false;
+
+  //showPlayhead is allowed to cancel the hiding
+  //of the playhead so we delay for a bit to allow
+  //it a chance
+  _.delay(function(){
+    if(playHeadVisible === false){
+      d3.select("#playhead")
+      .transition()
+      .style("opacity", 0);
+    }
+  }, timeout);
+}
+
+
+var player;
+function onYouTubePlayerAPIReady() {
+  player = new YT.Player('ytplayer', {
+    height: '390',
+    width: '640',
+  });
+}
+
+function playVideo(d){
+  if(_.isUndefined(player)){
+    return;
+  }
+
+  var startTime = d.frame_number;
+  var videoId = getVideoId(d);
+
+  //check if current video is the requested one.
+  //if so seek else load
+  var url = player.getVideoUrl();
+  if(url.match(videoId)){
+    player.seekTo(startTime, true);
+  } else {
+    player.loadVideoById({
+      'videoId': videoId,
+      'startSeconds': startTime,
+      'suggestedQuality': 'small'
+    });
+  }
+
+  showPlayArea();
+}
+
+function showPlayArea(){
+  d3.select("footer")
+    .transition()
+    .style("height", "480px")
+    .each("end", function(){
+      d3.select("#close_yt")
+        .transition()
+        .duration(100)
+        .style("opacity", 1);
+    });
+
+  d3.select("table")
+    .style("margin-bottom", "480px");
+}
+
+function hidePlayArea(){
+  if(!_.isUndefined(player)){
+    player.pauseVideo();
+  }
+
+  d3.select("footer")
+    .transition()
+    .style("height", "30px")
+    .each("end", function(){
+      d3.select("#close_yt")
+        .transition()
+        .duration(100)
+        .style("opacity", 0);
+    });
+
+  d3.select("table")
+    .style("margin-bottom", "20px");
+}
+
+
+function getMetaData(name){
+  names = {
+    "eric_fisher": {
+      fullName: "Eric Fisher",
+      talkTitle: "Mapping Billions of Dots",
+      videoId: "sqXArLn0pOY"
+    },
+    "sam_selikoff": {
+      fullName: "Sam Selikoff",
+      talkTitle: "Using D3 with Backbone, Angular and Ember",
+      videoId: "ca3pQWc2"
+    },
+    "kennedy_elliot": {
+      fullName: "Kennedy Elliot",
+      talkTitle: "Coding for the News",
+      videoId: "6xeBs5UoqVk"
+    },
+    "jen": {
+      fullName: "Jen Christiansen",
+      talkTitle: "Visualizing Science: Developing Information Graphics for Scientific American Magazine",
+      videoId: "QJU4FLn2weg"
+    },
+    "arvind_satyanarayan": {
+      fullName: "Arvind Satyanarayan",
+      talkTitle: "Lyra: An Interactive Visualization Design Environment",
+      videoId: "io7BSu6RIYM"
+    },
+    "tom_frederik": {
+      fullName: "Tom De Smedt +<br> Frederik De Bleser",
+      talkTitle: "Agile Data Mining and Visualization",
+      videoId: "0oUP7uHAsNA"
+    },
+    "andy_kirk": {
+      fullName: "Andy Kirk",
+      talkTitle: "The Design of Nothing: Null, Zero, Blank",
+      videoId: "JqzAuqNPYVM"
+    },
+    "david_mimno": {
+      fullName: "David Mimno",
+      talkTitle: "Understanding Machine Learning with D3: Visualization for Models and Algorithms",
+      videoId: "-0Pe30Zz3a0"
+    },
+    "jake_vanderplas": {
+      fullName: "Jake Vanderplas",
+      talkTitle: "Python in the Browser Age: Data Exploration in the IPython Notebook",
+      videoId: "NzX7DDRkecU"
+    },
+    "jason_sundram": {
+      fullName: "Jason Sundram",
+      talkTitle: "A full stack approach to data visualization: Terabytes (and beyond) at Facebook",
+      videoId: "hGDNBGShQVY"
+    },
+    "john_resig": {
+      fullName: "John Resig",
+      talkTitle: "Analyzing Art Data for Fun and Profit",
+      videoId: "u2pZ_OVRzVc"
+    },
+    "lena_groeger": {
+      fullName: "Lena Groeger",
+      talkTitle: "Think Small: the Power of Wee Things",
+      videoId: "ZPAp3Fxx7TE"
+    },
+    "lisa_chris": {
+      fullName: "Lisa Strausfeld + <br>Christopher Cannon",
+      talkTitle: "Bloomberg Visual Data - From Explanation to Exploration",
+      videoId: "Qm4Ilw76hTI"
+    },
+    "marian_doerk": {
+      fullName: "Marian Dörk",
+      talkTitle: "From Bird's-eye Views to Street-Level Data Exploration: Taking Text For A Stroll",
+      videoId: "SXMyxUiIeS0"
+    },
+    "mike_bostock": {
+      fullName: "Mike Bostock",
+      talkTitle: "Design is a Search Space",
+      videoId: "fThhbt23SGM"
+    },
+    "ramnath_vaidyanathan": {
+      fullName: "Ramnath Vaidyanathan",
+      talkTitle: "Interactive Visualizations with R",
+      videoId: "CtDT2KbnKrk"
+    },
+    "robert_simmon": {
+      fullName: "Robert Simmon",
+      talkTitle: "Subtleties of Color",
+      videoId: "DjJr8D4Bxjw"
+    },
+    "mauricio_giraldo": {
+      fullName: "Mauricio Giraldo",
+      talkTitle: "NYPL Labs Building Inspector: Extracting Data from Historic Maps",
+      videoId: "Oph1o3IZEFU"
+    }
+  };
+  return names[name];
+}
+
+function getFullname(name){
+    var meta = getMetaData(name);
+    if(meta){
+      return meta["fullName"];
+    } else{
+      return name;
+    }
+  }
+
+
+function getTalkTitle(name){
+  var meta = getMetaData(name);
+  if(meta){
+    return meta["talkTitle"];
+  } else{
+    return name;
+  }
+}
+
+function getVideoId(name){
+  return "EzDaNJZIVJA";
+  var meta = getMetaData(name);
+  if(meta){
+    return meta["videoId"];
+  } else{
+    return name;
+  }
+}
+
 
 $(document).ready(function(){
 
   function getImagePath(name, frameNumber){
     return "/data/" + name + "/images/eigth/" + name + "-" + frameNumber + ".png";
-  }
-
-  function getFullname(name){
-    names = {
-      "eric_fisher": "Eric Fisher",
-      "sam_selikoff": "Sam Selikoff",
-      "kennedy_elliot": "Kennedy Elliot",
-      "jen": "Jen Christiansen",
-      "arvind_satyanarayan": "Arvind Satyanarayan",
-      "tom_frederik": "Tom De Smedt +<br> Frederik De Bleser",
-      "andy_kirk": "Andy Kirk",
-      "david_mimno": "David Mimno",
-      "jake_vanderplas": "Jake Vanderplas",
-      "jason_sundram": "Jason Sundram",
-      "john_resig": "John Resig",
-      "lena_groeger": "Lena Groeger",
-      "lisa_chris": "Lisa Strausfeld + <br>Christopher Cannon",
-      "marian_doerk": "Marian Dörk",
-      "mike_bostock": "Mike Bostock",
-      "ramnath_vaidyanathan": "Ramnath Vaidyanathan",
-      "robert_simmon": "Robert Simmon",
-      "mauricio_giraldo": "Mauricio Giraldo"
-    };
-
-    fullname = names[name];
-    if(fullname){
-      return fullname;
-    } else{
-      return name;
-    }
-  }
-
-
-  function getTalkTitle(name){
-    titles = {
-      "mike_bostock": "Design is a Search Space",
-      "eric": "Mapping Billions of Dots",
-      "sam_selikoff": "Using D3 with Backbone, Angular and Ember",
-      "kennedy_elliot": "Coding for the News",
-      "jen": "Visualizing Science: Developing Information Graphics for Scientific American Magazine",
-      "arvind_satyanarayan": "Lyra: An Interactive Visualization Design Environment",
-      "tom_frederik": "Agile Data Mining and Visualization",
-      "andy_kirk": "The Design of Nothing: Null, Zero, Blank",
-      "david_mimno": "Understanding Machine Learning with D3: Visualization for Models and Algorithms",
-      "jake_vanderplas": "Python in the Browser Age: Data Exploration in the IPython Notebook",
-      "jason_sundram": "A full stack approach to data visualization: Terabytes (and beyond) at Facebook",
-      "john_resig": "Analyzing Art Data for Fun and Profit",
-      "lena_groeger": "Think Small: the Power of Wee Things",
-      "lisa_chris": "Bloomberg Visual Data - From Explanation to Exploration",
-      "marian_doerk": "From Bird's-eye Views to Street-Level Data Exploration: Taking Text For A Stroll",
-      "ramnath_vaidyanathan": "Interactive Visualizations with R",
-      "robert_simmon": "Subtleties of Color",
-      "mauricio_giraldo": "NYPL Labs Building Inspector: Extracting Data from Historic Maps",
-    };
-
-    title = titles[name];
-    if(title){
-      return title;
-    } else{
-      return name;
-    }
   }
 
   function getOrder(){
@@ -166,7 +345,17 @@ $(document).ready(function(){
     infoArea
       .append("i")
       .attr("class", "fa fa-youtube-play")
-      .attr("data-name", function(d){ return d.name;} );
+      .attr("data-name", function(d){ return d.name;} )
+      .on("mouseover", function(d,i){
+        showPlayhead(); //will also cancel hidePlayhead
+        updatePlayhead("start");
+      })
+      .on("mouseleave", function(){
+        hidePlayhead(300);
+      })
+      .on("click", function(d, i){
+        playVideo("start");
+      });
 
     infoArea
       .append("h2")
@@ -194,10 +383,21 @@ $(document).ready(function(){
       });
 
     // Create the div to represent a tile
+    var throttledHide = _.debounce(hidePlayhead, 50);
     tiles.enter()
       .append("div")
       .attr("class", function(d, i) {
         return "tile " + d.name;
+      })
+      .on("mouseover", function(d,i){
+        showPlayhead(); //will also cancel hidePlayhead
+        updatePlayhead(d);
+      })
+      .on("mouseleave", function(){
+        hidePlayhead(300);
+      })
+      .on("click", function(d, i){
+        playVideo(d);
       });
 
     //Style the tile
@@ -230,10 +430,7 @@ $(document).ready(function(){
           var rgbCol = d3.rgb(rgbArr[0], rgbArr[1], rgbArr[2]);
           var hsl = rgbCol.hsl();
           return hsl.s;
-          // return datum.count;
         }).reverse();
-
-        // var c = byHsl[0].col;
 
         var c1 = byHsl[0].col;
         var c2 = byHsl[1].col;
@@ -396,6 +593,9 @@ $(document).ready(function(){
       });
     }
 
+    // Other controls
+    d3.select("#close_yt")
+      .on("click", hidePlayArea);
 
   });
 });

@@ -5,7 +5,6 @@ block content
 		.pure-menu.pure-menu-open.pure-menu-horizontal
 			ul.words
 				li.title OpenVisConf 2014 Talks
-					//- a(href="#") ?
 			ul.right
 				li
 					a(href="#" id="expand_all")
@@ -14,7 +13,22 @@ block content
 					a(href="#" id="contract_all")
 						i(class="fa fa-minus")
 	.pure-g
-
 		.pure-u-24-24
 			#container
-		footer
+	footer
+		.status_bar
+			span#playhead
+			span.right
+				.pure-menu.pure-menu-open.pure-menu-horizontal
+					ul.right.inline
+						li
+							a(href="#" id="close_yt")
+								i(class="fa fa-chevron-down")
+						li
+							a(href="#" id="help")
+								i(class="fa fa-question")
+		.footer_content
+			#yt_player_container
+				#yt_speaker_name
+				#yt_talk_name
+				#ytplayer
