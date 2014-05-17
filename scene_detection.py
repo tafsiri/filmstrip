@@ -94,6 +94,9 @@ def detectKeyframes(sourcePath, verbose=False, after_frame=0):
         frame_number = cap.get(cv.CV_CAP_PROP_POS_FRAMES) - 1
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = scale(gray, 0.25, 0.25)
+        gray = cv2.GaussianBlur(gray, (10,10) ,0.0)
+
         if frame_number < after_frame:
             lastFrame = gray
             continue
@@ -172,9 +175,9 @@ def writeImagePyramid(destPath, name, seqNumber, image):
 
     # cv2.imwrite(fullPath, image)
     # cv2.imwrite(halfPath, hImage)
-    cv2.imwrite(quarterPath, qImage)
+    # cv2.imwrite(quarterPath, qImage)
     cv2.imwrite(eigthPath, eImage)
-    cv2.imwrite(sixteenthPath, sImage)
+    # cv2.imwrite(sixteenthPath, sImage)
 
 
 
@@ -185,7 +188,7 @@ def extractKeyframes(sourcePath, destPath, data, name, verbose=False):
     info = getInfo(sourcePath)
     destDir = os.path.join(destPath, "images")
 
-    diff_threshold = (data["stats"]["sd"] * 2) + data["stats"]["mean"]
+    diff_threshold = (data["stats"]["sd"] * 1.85) + data["stats"]["mean"]
     # print("diff_threshold", diff_threshold)
 
     cap = cv2.VideoCapture(sourcePath)
