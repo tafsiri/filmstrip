@@ -4,6 +4,14 @@ body {
 	/*background-color: #ccc;*/
 }
 
+#state-indicator {
+    position: absolute;
+    top: -999em;
+    left: -999em;
+
+    z-index: 1;
+}
+
 /* Header */
 
 header {
@@ -18,7 +26,7 @@ header {
 	font-family: 'Open Sans', sans-serif;
 	text-transform: uppercase;
 	/*font-variant: small-caps;*/
-	font-size:10pt;
+	font-size:0.9em;
 	letter-spacing: 0.1em;
 	font-weight: 700;
 	color:#444;
@@ -106,8 +114,8 @@ table{
 .speaker-info{
 	padding-right:20px;
 	vertical-align: top;
-	min-width: 300px;
-	max-width: 300px;
+	min-width: 350px;
+	max-width: 350px;
 }
 
 
@@ -129,7 +137,7 @@ td{
 	font-family: 'Open Sans', sans-serif;
 	font-weight: 600
 	line-height: 1.2em;
-	font-size: 9pt;
+	font-size: 0.9em;
 	text-transform: uppercase;
 	cursor: pointer;
 }
@@ -145,7 +153,7 @@ h2.talk_name{
 	font-weight: 400;
 	/*font-style: italic;*/
 	line-height: 1.2em;
-	font-size: 10pt;
+	font-size: 0.9em;
 	margin-top:4px;
 	margin-bottom:4px;
 	display: inline-block;

@@ -56,27 +56,33 @@ function onYouTubePlayerAPIReady() {
 }
 
 function playVideo(d){
-  if(_.isUndefined(player)){
-    return;
+  var isMobile = d3.select("#state-indicator").style("z-index") == "2";
+  var url;
+  if(isMobile){
+    var id = getVideoId(d);
+    if(id){
+      url = "http://m.youtube.com/watch?v=" + id;
+      window.open(url, '_blank');
+    }
+  } else if(!_.isUndefined(player)){
+    var startTime = d.frame_number;
+    var videoId = getVideoId(d);
+
+    // Check if current video is the requested one. If so seek else load
+    url = player.getVideoUrl();
+
+    if(url.match(videoId)){
+      player.seekTo(startTime, true);
+    } else {
+      player.loadVideoById({
+        'videoId': videoId,
+        'startSeconds': startTime,
+        'suggestedQuality': 'small'
+      });
+    }
+
+    showPlayArea();
   }
-
-  var startTime = d.frame_number;
-  var videoId = getVideoId(d);
-
-  //check if current video is the requested one.
-  //if so seek else load
-  var url = player.getVideoUrl();
-  if(url.match(videoId)){
-    player.seekTo(startTime, true);
-  } else {
-    player.loadVideoById({
-      'videoId': videoId,
-      'startSeconds': startTime,
-      'suggestedQuality': 'small'
-    });
-  }
-
-  showPlayArea();
 }
 
 function showPlayArea(){
@@ -131,7 +137,7 @@ function getMetaData(name){
       talkTitle: "Coding for the News",
       videoId: "6xeBs5UoqVk"
     },
-    "jen": {
+    "jen_christiansen": {
       fullName: "Jen Christiansen",
       talkTitle: "Visualizing Science: Developing Information Graphics for Scientific American Magazine",
       videoId: "QJU4FLn2weg"
@@ -249,10 +255,10 @@ $(document).ready(function(){
   function getOrder(){
     return [
       "mike_bostock",
-      "eric",
+      "eric_fisher",
       "sam_selikoff",
       "kennedy_elliot",
-      "jen",
+      "jen_christiansen",
       "arvind_satyanarayan",
       "tom_frederik",
       "andy_kirk",
@@ -296,7 +302,7 @@ $(document).ready(function(){
         // }
 
         lastFrameNumber = speaker_data["frames"][i]["frame_number"];
-        if(diff < 8 && lastFrameNumber !== 0){
+        if(diff < 10 && lastFrameNumber !== 0){
           speaker_data["frames"][i] = undefined;
         }
       }
@@ -331,7 +337,12 @@ $(document).ready(function(){
         return getFullname(d.name);
       })
       .on("click", function(d, i){
-        toggle(d.name);
+        var isMobile = d3.select("#state-indicator").style("z-index") == "2";
+        if(isMobile){
+          playVideo(d);
+        } else {
+          toggle(d.name);
+        }
       });
 
     infoArea
@@ -365,7 +376,14 @@ $(document).ready(function(){
         return getTalkTitle(d.name);
       })
       .on("click", function(d, i){
-        toggle(d.name);
+        var isMobile = d3.select("#state-indicator").style("z-index") == "2";
+        if(isMobile){
+          playVideo(d);
+        } else {
+          toggle(d.name);
+        }
+
+
       });
 
 
