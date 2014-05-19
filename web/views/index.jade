@@ -1,37 +1,54 @@
-extends layout
+doctype html
+html
+  head
+    title OpenVis Conf 2014 Talks
+    meta(name="viewport" content="width=device-width")
+    link(href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800' rel='stylesheet' type='text/css')
+    link(href='http://fonts.googleapis.com/css?family=Raleway:400,100' rel='stylesheet' type='text/css')
+    link(rel='stylesheet', href='/stylesheets/pure-min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet' href='/stylesheets/font-awesome.min.css')
 
-block content
-	header
-		.pure-menu.pure-menu-open.pure-menu-horizontal
-			ul.words
-				li.title OpenVisConf 2014 Talks
-			ul.right
-				li
-					a(href="#" id="expand_all")
-						i(class="fa fa-plus")
-				li
-					a(href="#" id="contract_all")
-						i(class="fa fa-minus")
-				li
-					a(href="#" id="help")
-						i(class="fa fa-question")
-	.pure-g
-		.pure-u-24-24
-			#container
-	footer
-		.status_bar
-			span#playhead
-			span.right
-				.pure-menu.pure-menu-open.pure-menu-horizontal
-					ul.right.inline
-						li
-							a(href="#" id="close_yt")
-								i(class="fa fa-chevron-down")
-		.footer_content
-			#yt_player_container
-				#yt_speaker_name
-				#yt_talk_name
-				#ytplayer
-	//- hidden div for media query
-	#state-indicator
+    link(rel="stylesheet" media="only screen and (max-width: 370px)" href="/stylesheets/mobile.css")
+
+    script(src="/javascripts/lib/jquery/jquery-2.1.0.js", charset="utf-8")
+    script(src="/javascripts/lib/underscore/underscore.js", charset="utf-8")
+    script(src="/javascripts/lib/d3/d3.js", charset="utf-8")
+    script(src="/javascripts/vis.js", charset="utf-8")
+    script(src="https://www.youtube.com/player_api", charset="utf-8")
+
+  body
+    header
+      .pure-menu.pure-menu-open.pure-menu-horizontal
+        ul.words
+          li.title OpenVisConf 2014 Talks
+        ul.right
+          li
+            a(href="#" id="expand_all")
+              i(class="fa fa-plus")
+          li
+            a(href="#" id="contract_all")
+              i(class="fa fa-minus")
+          li
+            a(href="#" id="help")
+              i(class="fa fa-question")
+
+    #container
+
+    footer
+      .status_bar
+        span#playhead
+        span.right
+          .pure-menu.pure-menu-open.pure-menu-horizontal
+            ul.right.inline
+              li
+                a(href="#" id="close_yt")
+                  i(class="fa fa-chevron-down")
+      .footer_content
+        #yt_player_container
+          #yt_speaker_name
+          #yt_talk_name
+          #ytplayer
+    //- hidden div for media query
+    #state-indicator
 
