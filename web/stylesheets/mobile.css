@@ -1,4 +1,4 @@
-body{
+#container{
 	font-size: 150%;
 }
 
@@ -19,12 +19,15 @@ i.fa-question{
 }
 
 i.fa-youtube-play{
-	font-size: 40px;
-	padding-right:30px;
-	margin-top:20px;
-	float:clear;
+	font-size: 60px;
+	display: inline-block;
+  width: 100%;
+  text-align:center;
+	/*display:block;*/
+	/*margin:0 auto;*/
+	/*padding-right:30px;*/
+	/*margin-top:20px;*/
 }
-
 
 footer{
 	display: none;
@@ -33,6 +36,7 @@ footer{
 .speaker-info{
 	min-width: 100%;
 	max-width: 100%;
+	text-align: center;
 }
 
 td{

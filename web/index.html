@@ -16,6 +16,7 @@
     <script src="https://www.youtube.com/player_api" charset="utf-8"></script>
   </head>
   <body>
+
     <header>
       <div class="pure-menu pure-menu-open pure-menu-horizontal">
         <ul class="words">
@@ -28,14 +29,20 @@
         </ul>
       </div>
     </header>
+
     <div id="container"></div>
-    <footer>
-      <div class="status_bar"><span id="playhead"></span><span class="right">
+
+    <div class="video-container">
+      <div class="status_bar">
+        <span id="playhead"></span>
+        <span class="right">
           <div class="pure-menu pure-menu-open pure-menu-horizontal">
             <ul class="right inline">
               <li><a href="#" id="close_yt"><i class="fa fa-chevron-down"></i></a></li>
             </ul>
-          </div></span></div>
+          </div>
+        </span>
+      </div>
       <div class="footer_content">
         <div id="yt_player_container">
           <div id="yt_speaker_name"></div>
@@ -43,7 +50,8 @@
           <div id="ytplayer"></div>
         </div>
       </div>
-    </footer>
+    </div>
+
     <div id="state-indicator"></div>
   </body>
 </html>

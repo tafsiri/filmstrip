@@ -51,34 +51,29 @@ i{
 
 
 /* Footer */
-footer{
-	border: 1px dotted #ff4b5c;
+.video-container{
+	border-top: 1px dotted #ff4b5c;
 	border-bottom: none;
 	position:fixed;
   left:0px;
   bottom:0px;
-  height:30px;
+  height:0px;
   width:100%;
   margin:0 auto;
-  margin-top:40px;
-  /*margin-left:5%;*/
   background:#fff;
 
-
   font-family: 'Open Sans', sans-serif;
-	/*text-transform: uppercase;*/
-	/*font-variant: small-caps;*/
 	font-size:10pt;
-	/*letter-spacing: 0.1em;*/
 	font-weight: 300;
 	color:#777;
+	z-index:4;
 }
 
 .footer_content{
 	margin-top:40px;
 }
 
-footer .right{
+.video-container .right{
 	float:right;
 }
 
@@ -101,21 +96,37 @@ footer .right{
 
 /* Main Tile Area */
 
-table{
-	margin-bottom: 20px;
+#container{
+	margin-left: 20px;
 }
 
 .tile-area{
-	/*display:inline-block;*/
-	margin:0px;
-	padding-right:10px;
+	float: left;
+	width: 60%;
+}
+
+.speaker {
+	overflow: auto;
+	margin-bottom: 1.5em;
 }
 
 .speaker-info{
-	padding-right:20px;
-	vertical-align: top;
-	min-width: 350px;
-	max-width: 350px;
+	float: left;
+	width: 300px;
+	margin-right: 3%;
+}
+
+.abstract{
+	display:none;
+
+	color:#222;
+	text-transform: none;
+	font-family: 'Raleway', sans-serif;
+	font-weight: 400;
+	line-height: 1.1em;
+	font-size: 0.8em;
+	margin-top:4px;
+	margin-bottom:4px;
 }
 
 
@@ -125,17 +136,21 @@ table{
 	cursor:pointer;
 }
 
+.tile img{
+	box-sizing:border-box;
+}
+
 td{
 	padding-bottom: 40px;
 }
 
 .speaker-info h2{
 	margin: 0px 10px 0px 0px;
-	padding: 0px 10px 5px 20px;
+	padding: 0px 10px 5px 0;
 	position: relative;
 	color:#777;
-	font-family: 'Open Sans', sans-serif;
-	font-weight: 600
+	/*font-family: 'Raleway', sans-serif;*/
+	font-weight: 700;
 	line-height: 1.2em;
 	font-size: 0.9em;
 	text-transform: uppercase;
@@ -149,11 +164,11 @@ h2.speaker_name{
 h2.talk_name{
 	color:#222;
 	text-transform: none;
-	font-family: 'Raleway', sans-serif;
+	/*font-family: 'Raleway', sans-serif;*/
 	font-weight: 400;
 	/*font-style: italic;*/
 	line-height: 1.2em;
-	font-size: 0.9em;
+	font-size: 0.8em;
 	margin-top:4px;
 	margin-bottom:4px;
 	display: inline-block;
@@ -167,6 +182,10 @@ h2.talk_name{
 	/*float: right;*/
 	float: right;
   /*padding-left: 10px;*/
+}
+
+#videos .block #container {
+	text-align: left;
 }
 
 
