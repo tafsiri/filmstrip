@@ -1,5 +1,6 @@
 output
 preview/static
 web/node_modules
-web/public/data/*
+web/data/*
 videos
+sample-input

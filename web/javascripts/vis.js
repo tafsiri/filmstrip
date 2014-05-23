@@ -167,7 +167,7 @@ function getData(url, callback) {
         var diff = speaker_data["frames"][i]["frame_number"] - lastFrameNumber;
 
         lastFrameNumber = speaker_data["frames"][i]["frame_number"];
-        if(diff < 10 && lastFrameNumber !== 0){
+        if(diff < 8 && lastFrameNumber !== 0){
           speaker_data["frames"][i] = undefined;
         }
       }
@@ -197,7 +197,7 @@ function renderTiles(data){
   // Add Row
 
   var speaker = container.selectAll(".speaker")
-    .data(data)
+    .data(data);
 
   speaker.enter().append("tr")
       .attr("class", "speaker");
