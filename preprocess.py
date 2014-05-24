@@ -1,8 +1,13 @@
+# Utilities for preprocessing video for scene detection.
+# Frame skipping: will create a video that only one frame
+# for each section of the original video.
+# ROI extraction: which will create a video that only
+# contains the specified region of interest.
+
 import math
 import cv2
 import cv
 import argparse
-import numpy as np
 
 def getInfo(sourcePath):
     cap = cv2.VideoCapture(sourcePath)
@@ -17,7 +22,8 @@ def getInfo(sourcePath):
     return info
 
 #
-# Extracts one frame every second
+# Extracts one frame for every second second of video.
+# Effectively compresses a video down into much less data.
 #
 def extractFrames(sourcePath, destPath, verbose=False):
     info = getInfo(sourcePath)

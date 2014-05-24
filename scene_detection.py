@@ -1,4 +1,7 @@
-import math
+# Scripts to try and detect key frames that represent scene transitions
+# in a video. Has only been tried out on video of slides, so is likely not
+# robust for other types of video.
+
 import cv2
 import cv
 import argparse
@@ -6,7 +9,6 @@ import json
 import os
 import numpy as np
 import errno
-import sys
 
 def getInfo(sourcePath):
     cap = cv2.VideoCapture(sourcePath)
@@ -73,13 +75,10 @@ def extract_cols(image, numCols):
 
 
 #
-# Extracts one frame every second
+# Calculates change data one one frame to the next one.
 #
-def detectKeyframes(sourcePath, verbose=False, after_frame=0):
-    info = getInfo(sourcePath)
-
+def calculateFrameStats(sourcePath, verbose=False, after_frame=0):
     cap = cv2.VideoCapture(sourcePath)
-    #fgbg = cv2.BackgroundSubtractorMOG()
 
     data = {
         "frame_info": []
@@ -93,17 +92,18 @@ def detectKeyframes(sourcePath, verbose=False, after_frame=0):
 
         frame_number = cap.get(cv.CV_CAP_PROP_POS_FRAMES) - 1
 
+        # Convert to grayscale, scale down and blur to make
+        # calculate image differences more robust to noise
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = scale(gray, 0.25, 0.25)
-        gray = cv2.GaussianBlur(gray, (10,10) ,0.0)
+        gray = cv2.GaussianBlur(gray, (9,9), 0.0)
 
         if frame_number < after_frame:
             lastFrame = gray
             continue
 
 
-        if lastFrame != None: # and frame_number - 5 < info["framecount"]:
-            # fgmask = fgbg.apply(frame)
+        if lastFrame != None:
 
             diff = cv2.subtract(gray, lastFrame)
 
@@ -115,21 +115,15 @@ def detectKeyframes(sourcePath, verbose=False, after_frame=0):
             }
             data["frame_info"].append(frame_info)
 
-
-
-            # print("Non-zero px: ", diffMag)
-
             if verbose:
-                # cv2.imshow('fgmask', fgmask)
                 cv2.imshow('diff', diff)
-
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
 
+        # Keep a ref to his frame for differencing on the next iteration
         lastFrame = gray
 
     cap.release()
-    # out.release()
     cv2.destroyAllWindows()
 
     #compute some states
@@ -159,7 +153,9 @@ def detectKeyframes(sourcePath, verbose=False, after_frame=0):
 
 
 #
-# Take an image and write it out at various sizes
+# Take an image and write it out at various sizes.
+#
+# TODO: Create output directories if they do not exist.
 #
 def writeImagePyramid(destPath, name, seqNumber, image):
     fullPath = os.path.join(destPath, "full", name + "-" + str(seqNumber) + ".png")
@@ -173,26 +169,27 @@ def writeImagePyramid(destPath, name, seqNumber, image):
     eImage = scale(image, 0.125, 0.125)
     sImage = scale(image, 0.0625, 0.0625)
 
-    # cv2.imwrite(fullPath, image)
-    # cv2.imwrite(halfPath, hImage)
-    # cv2.imwrite(quarterPath, qImage)
+    cv2.imwrite(fullPath, image)
+    cv2.imwrite(halfPath, hImage)
+    cv2.imwrite(quarterPath, qImage)
     cv2.imwrite(eigthPath, eImage)
-    # cv2.imwrite(sixteenthPath, sImage)
+    cv2.imwrite(sixteenthPath, sImage)
 
 
 
 #
-# Extracts one frame every second
+# Selects a set of frames as key frames (frames that represent a significant difference in
+# the video i.e. potential scene chnges). Key frames are selected as those frames where the
+# number of pixels that changed from the previous frame are more than 1.85 standard deviations
+# times from the mean number of changed pixels across all interframe changes.
 #
-def extractKeyframes(sourcePath, destPath, data, name, verbose=False):
-    info = getInfo(sourcePath)
+def detectScenes(sourcePath, destPath, data, name, verbose=False):
     destDir = os.path.join(destPath, "images")
 
+    # TODO make sd multiplier externally configurable
     diff_threshold = (data["stats"]["sd"] * 1.85) + data["stats"]["mean"]
-    # print("diff_threshold", diff_threshold)
 
     cap = cv2.VideoCapture(sourcePath)
-    # writeCount = 0
     for index, fi in enumerate(data["frame_info"]):
         if fi["diff_count"] < diff_threshold:
             continue
@@ -200,17 +197,13 @@ def extractKeyframes(sourcePath, destPath, data, name, verbose=False):
         cap.set(cv.CV_CAP_PROP_POS_FRAMES, fi["frame_number"])
         ret, frame = cap.read()
 
-         #extract dominant color
+        # extract dominant color
         small = resize(frame, 100, 100)
         cols = extract_cols(small, 5)
         data["frame_info"][index]["dominant_cols"] = cols
 
 
         if frame != None:
-            # + "---" + str(writeCount)
-            # fname = os.path.join(destDir, name + "-" + str(index+1) + ".png")
-            # cv2.imwrite(fname, frame)
-            # writeCount += 1
             writeImagePyramid(destDir, name, fi["frame_number"], frame)
 
             if verbose:
@@ -223,7 +216,7 @@ def extractKeyframes(sourcePath, destPath, data, name, verbose=False):
     return data
 
 
-def make_output_dirs(path):
+def makeOutputDirs(path):
     try:
         #todo this doesn't quite work like mkdirp. it will fail
         #fi any folder along the path exists. fix
@@ -239,7 +232,7 @@ def make_output_dirs(path):
         else: raise
 
 
-parser = argparse.ArgumentParser(description='Extract one frame from every second of video')
+parser = argparse.ArgumentParser()
 
 parser.add_argument('-s','--source', help='source file', required=True)
 parser.add_argument('-d', '--dest', help='dest folder', required=True)
@@ -254,12 +247,14 @@ if args.verbose:
     info = getInfo(args.source)
     print("Source Info: ", info)
 
-make_output_dirs(args.dest)
+makeOutputDirs(args.dest)
 
-data = detectKeyframes(args.source, args.verbose, int(args.after_frame))
-data = extractKeyframes(args.source, args.dest, data, args.name, args.verbose)
+# Run the extraction
+data = calculateFrameStats(args.source, args.verbose, int(args.after_frame))
+data = detectScenes(args.source, args.dest, data, args.name, args.verbose)
 keyframeInfo = [frame_info for frame_info in data["frame_info"] if "dominant_cols" in frame_info]
 
+# Write out the results
 data_fp = os.path.join(args.dest, "metadata", args.name + "-meta.json")
 with open(data_fp, 'w') as f:
     data_json_str = json.dumps(data, indent=4)
