@@ -1,8 +1,0 @@
-<!doctype html>
-<title>Filmstrip preview</title>
-{% if name %}
-  <h1>Folder: {{ name }}</h1>
-{% endif %}
-{% for url in images %}
-	<img src="{{url}}" width=100></img>
-{% endfor %}
