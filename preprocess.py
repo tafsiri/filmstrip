@@ -4,19 +4,20 @@
 # ROI extraction: which will create a video that only
 # contains the specified region of interest.
 
+# Updated to use OpenCV 3.1.0 and Python 3.5
+
 import math
 import cv2
-import cv
 import argparse
 
 def getInfo(sourcePath):
     cap = cv2.VideoCapture(sourcePath)
     info = {
-        "framecount": cap.get(cv.CV_CAP_PROP_FRAME_COUNT),
-        "fps": cap.get(cv.CV_CAP_PROP_FPS),
-        "width": int(cap.get(cv.CV_CAP_PROP_FRAME_WIDTH)),
-        "height": int(cap.get(cv.CV_CAP_PROP_FRAME_HEIGHT)),
-        "codec": int(cap.get(cv.CV_CAP_PROP_FOURCC))
+        "framecount": cap.get(cv2.CAP_PROP_FRAME_COUNT),
+        "fps": cap.get(cv2.CAP_PROP_FPS),
+        "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+        "codec": int(cap.get(cv2.CAP_PROP_FOURCC))
     }
     cap.release()
     return info
@@ -29,7 +30,7 @@ def extractFrames(sourcePath, destPath, verbose=False):
     info = getInfo(sourcePath)
 
     cap = cv2.VideoCapture(sourcePath)
-    fourcc = cv2.cv.CV_FOURCC('X','V','I','D')
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
     out = cv2.VideoWriter(destPath,
         fourcc,
         info["fps"],
@@ -38,7 +39,7 @@ def extractFrames(sourcePath, destPath, verbose=False):
     ret = True
     while(cap.isOpened() and ret):
         ret, frame = cap.read()
-        frame_number = cap.get(cv.CV_CAP_PROP_POS_FRAMES) - 1
+        frame_number = cap.get(cv2.CAP_PROP_POS_FRAMES) - 1
         if frame_number % math.ceil(info["fps"]) == 0:
             out.write(frame)
 
@@ -70,7 +71,7 @@ def extractROI(sourcePath, destPath, points, verbose=False):
 
     cap = cv2.VideoCapture(sourcePath)
 
-    fourcc = cv2.cv.CV_FOURCC('X','V','I','D')
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
     out = cv2.VideoWriter(destPath,
         fourcc,
         info["fps"],
@@ -79,7 +80,7 @@ def extractROI(sourcePath, destPath, points, verbose=False):
     ret = True
     while(cap.isOpened() and ret):
         ret, frame = cap.read()
-        if frame == None:
+        if frame is None:
             break
 
         roi = frame[y:y+height, x:x+width]
@@ -99,7 +100,7 @@ def extractROI(sourcePath, destPath, points, verbose=False):
 
 # Groups a list in n sized tuples
 def group(lst, n):
-    return zip(*[lst[i::n] for i in range(n)])
+    return list(zip(*[lst[i::n] for i in range(n)]))
 
 
 parser = argparse.ArgumentParser(description='Extract one frame from every second of video')
