@@ -35,12 +35,13 @@ def extractFrames(sourcePath, destPath, verbose=False):
         fourcc,
         info["fps"],
         (info["width"], info["height"]))
+    fps_int = math.ceil(info["fps"])
 
     ret = True
     while(cap.isOpened() and ret):
         ret, frame = cap.read()
-        frame_number = cap.get(cv2.CAP_PROP_POS_FRAMES) - 1
-        if frame_number % math.ceil(info["fps"]) == 0:
+        frame_number = math.ceil(cap.get(cv2.CAP_PROP_POS_FRAMES) - 1)
+        if frame_number % fps_int == 0:
             out.write(frame)
 
             if verbose:

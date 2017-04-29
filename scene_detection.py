@@ -3,7 +3,7 @@
 # robust for other types of video.
 
 import cv2
-import cv
+#import cv
 import argparse
 import json
 import os
@@ -13,11 +13,11 @@ import errno
 def getInfo(sourcePath):
     cap = cv2.VideoCapture(sourcePath)
     info = {
-        "framecount": cap.get(cv.CV_CAP_PROP_FRAME_COUNT),
-        "fps": cap.get(cv.CV_CAP_PROP_FPS),
-        "width": int(cap.get(cv.CV_CAP_PROP_FRAME_WIDTH)),
-        "height": int(cap.get(cv.CV_CAP_PROP_FRAME_HEIGHT)),
-        "codec": int(cap.get(cv.CV_CAP_PROP_FOURCC))
+        "framecount": cap.get(cv2.CAP_PROP_FRAME_COUNT),
+        "fps": cap.get(cv2.CAP_PROP_FPS),
+        "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+        "codec": int(cap.get(cv2.CAP_PROP_FOURCC))
     }
     cap.release()
     return info
@@ -48,7 +48,8 @@ def extract_cols(image, numCols):
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, max_iter, epsilon)
 
     # cluster
-    compactness, labels, centers = cv2.kmeans(Z, K, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+    lab = []
+    compactness, labels, centers = cv2.kmeans(data=Z, K=K, bestLabels=None, criteria=criteria, attempts=10, flags=cv2.KMEANS_RANDOM_CENTERS)
 
     clusterCounts = []
     for idx in range(K):
@@ -90,7 +91,7 @@ def calculateFrameStats(sourcePath, verbose=False, after_frame=0):
         if frame == None:
             break
 
-        frame_number = cap.get(cv.CV_CAP_PROP_POS_FRAMES) - 1
+        frame_number = cap.get(cv2.CAP_PROP_POS_FRAMES) - 1
 
         # Convert to grayscale, scale down and blur to make
         # calculate image differences more robust to noise
@@ -157,23 +158,28 @@ def calculateFrameStats(sourcePath, verbose=False, after_frame=0):
 #
 # TODO: Create output directories if they do not exist.
 #
+seq_num_global = 0
 def writeImagePyramid(destPath, name, seqNumber, image):
-    fullPath = os.path.join(destPath, "full", name + "-" + str(seqNumber) + ".png")
-    halfPath = os.path.join(destPath, "half", name + "-" + str(seqNumber) + ".png")
-    quarterPath = os.path.join(destPath, "quarter", name + "-" + str(seqNumber) + ".png")
-    eigthPath = os.path.join(destPath, "eigth", name + "-" + str(seqNumber) + ".png")
-    sixteenthPath = os.path.join(destPath, "sixteenth", name + "-" + str(seqNumber) + ".png")
+    global seq_num_global
+    fullPath = os.path.join(destPath, "full", name + "-" + str(seqNumber).zfill(4) + ".png")
+    fullSeqPath = os.path.join(destPath, "fullseq", name + "-" + str(seq_num_global).zfill(4) + ".png")
+    seq_num_global += 1
+    #halfPath = os.path.join(destPath, "half", name + "-" + str(seqNumber).zfill(4) + ".png")
+    #quarterPath = os.path.join(destPath, "quarter", name + "-" + str(seqNumber).zfill(4) + ".png")
+    #eigthPath = os.path.join(destPath, "eigth", name + "-" + str(seqNumber).zfill(4) + ".png")
+    #sixteenthPath = os.path.join(destPath, "sixteenth", name + "-" + str(seqNumber).zfill(4) + ".png")
 
-    hImage = scale(image, 0.5, 0.5)
-    qImage = scale(image, 0.25, 0.25)
-    eImage = scale(image, 0.125, 0.125)
-    sImage = scale(image, 0.0625, 0.0625)
+    #hImage = scale(image, 0.5, 0.5)
+    #qImage = scale(image, 0.25, 0.25)
+    #eImage = scale(image, 0.125, 0.125)
+    #sImage = scale(image, 0.0625, 0.0625)
 
     cv2.imwrite(fullPath, image)
-    cv2.imwrite(halfPath, hImage)
-    cv2.imwrite(quarterPath, qImage)
-    cv2.imwrite(eigthPath, eImage)
-    cv2.imwrite(sixteenthPath, sImage)
+    cv2.imwrite(fullSeqPath, image)
+    #cv2.imwrite(halfPath, hImage)
+    #cv2.imwrite(quarterPath, qImage)
+    #cv2.imwrite(eigthPath, eImage)
+    #cv2.imwrite(sixteenthPath, sImage)
 
 
 
@@ -194,7 +200,7 @@ def detectScenes(sourcePath, destPath, data, name, verbose=False):
         if fi["diff_count"] < diff_threshold:
             continue
 
-        cap.set(cv.CV_CAP_PROP_POS_FRAMES, fi["frame_number"])
+        cap.set(cv2.CAP_PROP_POS_FRAMES, fi["frame_number"])
         ret, frame = cap.read()
 
         # extract dominant color
@@ -222,6 +228,7 @@ def makeOutputDirs(path):
         #fi any folder along the path exists. fix
         os.makedirs(os.path.join(path, "metadata"))
         os.makedirs(os.path.join(path, "images", "full"))
+        os.makedirs(os.path.join(path, "images", "fullseq"))
         os.makedirs(os.path.join(path, "images", "half"))
         os.makedirs(os.path.join(path, "images", "quarter"))
         os.makedirs(os.path.join(path, "images", "eigth"))
